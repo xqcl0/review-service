@@ -20,14 +20,19 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationReviewCreateReview = "/api.review.v1.Review/CreateReview"
+const OperationReviewGetReview = "/api.review.v1.Review/GetReview"
 
 type ReviewHTTPServer interface {
 	CreateReview(context.Context, *CreateReviewRequest) (*CreateReviewReply, error)
+	// GetReviewrpc UpdateReview (UpdateReviewRequest) returns (UpdateReviewReply);
+	//rpc DeleteReview (DeleteReviewRequest) returns (DeleteReviewReply);
+	GetReview(context.Context, *GetReviewRequest) (*GetReviewReply, error)
 }
 
 func RegisterReviewHTTPServer(s *http.Server, srv ReviewHTTPServer) {
 	r := s.Route("/")
 	r.POST("/v1/review", _Review_CreateReview0_HTTP_Handler(srv))
+	r.GET("/v1/review/{reviewID}", _Review_GetReview0_HTTP_Handler(srv))
 }
 
 func _Review_CreateReview0_HTTP_Handler(srv ReviewHTTPServer) func(ctx http.Context) error {
@@ -52,8 +57,31 @@ func _Review_CreateReview0_HTTP_Handler(srv ReviewHTTPServer) func(ctx http.Cont
 	}
 }
 
+func _Review_GetReview0_HTTP_Handler(srv ReviewHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetReviewRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationReviewGetReview)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetReview(ctx, req.(*GetReviewRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetReviewReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type ReviewHTTPClient interface {
 	CreateReview(ctx context.Context, req *CreateReviewRequest, opts ...http.CallOption) (rsp *CreateReviewReply, err error)
+	GetReview(ctx context.Context, req *GetReviewRequest, opts ...http.CallOption) (rsp *GetReviewReply, err error)
 }
 
 type ReviewHTTPClientImpl struct {
@@ -71,6 +99,19 @@ func (c *ReviewHTTPClientImpl) CreateReview(ctx context.Context, in *CreateRevie
 	opts = append(opts, http.Operation(OperationReviewCreateReview))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *ReviewHTTPClientImpl) GetReview(ctx context.Context, in *GetReviewRequest, opts ...http.CallOption) (*GetReviewReply, error) {
+	var out GetReviewReply
+	pattern := "/v1/review/{reviewID}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationReviewGetReview))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

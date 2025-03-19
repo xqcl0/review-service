@@ -13,6 +13,7 @@ import (
 type ReviewRepo interface {
 	SaveReview(context.Context, *model.ReviewInfo) (*model.ReviewInfo, error)
 	GetReviewByOrderID(context.Context, int64) ([]*model.ReviewInfo, error)
+	GetReviewByID(context.Context, int64) (*model.ReviewInfo, error)
 }
 
 // ReviewUsecase is a review usecase.
@@ -50,4 +51,13 @@ func (uc ReviewUsecase) CreateReview(ctx context.Context, review *model.ReviewIn
 
 	// 4、瓶装数据入库
 	return uc.repo.SaveReview(ctx, review)
+}
+
+func (uc *ReviewUsecase) GetReview(ctx context.Context, reviewID int64) (*model.ReviewInfo, error) {
+	uc.log.WithContext(ctx).Debugf("[biz] GetReview, reviewID:%v\n", reviewID)
+	review, err := uc.repo.GetReviewByID(ctx, reviewID)
+	if err != nil {
+		return nil, v1.ErrorDbFailed("query failed")
+	}
+	return review, nil
 }

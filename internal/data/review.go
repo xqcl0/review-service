@@ -24,6 +24,10 @@ func (r *reviewRepo) GetReviewByOrderID(ctx context.Context, id int64) ([]*model
 	return r.data.query.ReviewInfo.WithContext(ctx).Where(r.data.query.ReviewInfo.OrderID.Eq(id)).Find()
 }
 
+func (r *reviewRepo) GetReviewByID(ctx context.Context, id int64) (*model.ReviewInfo, error) {
+	return r.data.query.ReviewInfo.WithContext(ctx).Where(r.data.query.ReviewInfo.ID.Eq(id)).First()
+}
+
 func NewReviewRepo(data *Data, logger log.Logger) biz.ReviewRepo {
 	return &reviewRepo{
 		data: data,

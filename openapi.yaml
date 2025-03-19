@@ -43,6 +43,27 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.review.v1.CreateReviewReply'
+    /v1/review/{reviewID}:
+        get:
+            tags:
+                - Review
+            description: |-
+                rpc UpdateReview (UpdateReviewRequest) returns (UpdateReviewReply);
+                rpc DeleteReview (DeleteReviewRequest) returns (DeleteReviewReply);
+            operationId: Review_GetReview
+            parameters:
+                - name: reviewID
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.review.v1.GetReviewReply'
 components:
     schemas:
         api.review.v1.CreateReviewReply:
@@ -74,6 +95,39 @@ components:
                     type: string
                 anonymous:
                     type: boolean
+        api.review.v1.GetReviewReply:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/api.review.v1.ReviewInfo'
+        api.review.v1.ReviewInfo:
+            type: object
+            properties:
+                reviewID:
+                    type: string
+                userID:
+                    type: string
+                orderID:
+                    type: string
+                score:
+                    type: integer
+                    format: int32
+                serviceScore:
+                    type: integer
+                    format: int32
+                expressScore:
+                    type: integer
+                    format: int32
+                content:
+                    type: string
+                picInfo:
+                    type: string
+                videoInfo:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+            description: 评价信息
         helloworld.v1.HelloReply:
             type: object
             properties:

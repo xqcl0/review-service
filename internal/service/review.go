@@ -44,15 +44,26 @@ func (s *ReviewService) CreateReview(ctx context.Context, req *pb.CreateReviewRe
 		ReviewID: review.ReviewID,
 	}, err
 }
-func (s *ReviewService) UpdateReview(ctx context.Context, req *pb.UpdateReviewRequest) (*pb.UpdateReviewReply, error) {
-	return &pb.UpdateReviewReply{}, nil
-}
-func (s *ReviewService) DeleteReview(ctx context.Context, req *pb.DeleteReviewRequest) (*pb.DeleteReviewReply, error) {
-	return &pb.DeleteReviewReply{}, nil
-}
+
 func (s *ReviewService) GetReview(ctx context.Context, req *pb.GetReviewRequest) (*pb.GetReviewReply, error) {
-	return &pb.GetReviewReply{}, nil
-}
-func (s *ReviewService) ListReview(ctx context.Context, req *pb.ListReviewRequest) (*pb.ListReviewReply, error) {
-	return &pb.ListReviewReply{}, nil
+	fmt.Printf("[service] GetReview, req:%v\n", req)
+	data, err := s.uc.GetReview(ctx, req.ReviewID)
+	if err != nil {
+		return nil, err
+	}
+	resp := &pb.ReviewInfo{
+		ReviewID:     data.ID,
+		UserID:       data.UserID,
+		OrderID:      data.OrderID,
+		Score:        data.Score,
+		ServiceScore: data.ServiceScore,
+		ExpressScore: data.ExpressScore,
+		Content:      data.Content,
+		PicInfo:      data.PicInfo,
+		VideoInfo:    data.VideoInfo,
+		Status:       data.Status,
+	}
+	return &pb.GetReviewReply{
+		Data: resp,
+	}, nil
 }
