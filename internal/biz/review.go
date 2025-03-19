@@ -57,6 +57,10 @@ func (uc *ReviewUsecase) GetReview(ctx context.Context, reviewID int64) (*model.
 	uc.log.WithContext(ctx).Debugf("[biz] GetReview, reviewID:%v\n", reviewID)
 	review, err := uc.repo.GetReviewByID(ctx, reviewID)
 	if err != nil {
+		if review == nil {
+			return nil, v1.ErrorResultNotFound("no review found")
+		}
+		// todo record not found
 		return nil, v1.ErrorDbFailed("query failed")
 	}
 	return review, nil

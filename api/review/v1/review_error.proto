@@ -15,4 +15,5 @@ enum ErrorReason {
     NEED_LOGIN = 0 [(errors.code) = 401];
     DB_FAILED = 1 [(errors.code) = 500];
     ORDER_REVIEWD = 100 [(errors.code) = 400];
+    RESULT_NOT_FOUND = 101 [(errors.code) = 404];
 }
