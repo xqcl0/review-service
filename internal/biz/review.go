@@ -7,6 +7,7 @@ import (
 	"review-service/pkg/snowflake"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"gorm.io/gorm"
 )
 
 // ReviewRepo is a Greater repo.
@@ -14,6 +15,8 @@ type ReviewRepo interface {
 	SaveReview(context.Context, *model.ReviewInfo) (*model.ReviewInfo, error)
 	GetReviewByOrderID(context.Context, int64) ([]*model.ReviewInfo, error)
 	GetReviewByID(context.Context, int64) (*model.ReviewInfo, error)
+	GetReplyInfoByReviewID(context.Context, int64) (*model.ReviewReplyInfo, error)
+	SaveReply(context.Context, *model.ReviewReplyInfo) (*model.ReviewReplyInfo, error)
 }
 
 // ReviewUsecase is a review usecase.
@@ -22,9 +25,24 @@ type ReviewUsecase struct {
 	log  *log.Helper
 }
 
-// NewReviewUsecase new a review usecase.
-func NewReviewUsecase(repo ReviewRepo, logger log.Logger) *ReviewUsecase {
-	return &ReviewUsecase{repo: repo, log: log.NewHelper(logger)}
+func (uc *ReviewUsecase) ReplyReview(ctx context.Context, replyInfo *model.ReviewReplyInfo) (*model.ReviewReplyInfo, error) {
+	uc.log.WithContext(ctx).Debugf("[biz] replyReview, req:%v\n", replyInfo)
+	// 1. 参数校验
+	// 1.1 未回复过
+	info, err := uc.repo.GetReviewByID(ctx, replyInfo.ReviewID)
+	if err != nil {
+		return nil, v1.ErrorDbFailed("query failed")
+	}
+	if info.HasReply == 1 {
+		return nil, v1.ErrorReviewReplyAlreadyExist("reply to review already exist")
+	}
+
+	// 1.2 水平越权
+	if info.StoreID != replyInfo.StoreID {
+		return nil, v1.ErrorStoreIDNotMatch("水平越级")
+	}
+	replyInfo.ReplyID = snowflake.GenID()
+	return uc.repo.SaveReply(ctx, replyInfo)
 }
 
 // CreateReview creates a Greeter, and returns the new Greeter.
@@ -57,11 +75,16 @@ func (uc *ReviewUsecase) GetReview(ctx context.Context, reviewID int64) (*model.
 	uc.log.WithContext(ctx).Debugf("[biz] GetReview, reviewID:%v\n", reviewID)
 	review, err := uc.repo.GetReviewByID(ctx, reviewID)
 	if err != nil {
-		if review == nil {
+		if err == gorm.ErrRecordNotFound {
 			return nil, v1.ErrorResultNotFound("no review found")
 		}
 		// todo record not found
 		return nil, v1.ErrorDbFailed("query failed")
 	}
 	return review, nil
+}
+
+// NewReviewUsecase new a review usecase.
+func NewReviewUsecase(repo ReviewRepo, logger log.Logger) *ReviewUsecase {
+	return &ReviewUsecase{repo: repo, log: log.NewHelper(logger)}
 }

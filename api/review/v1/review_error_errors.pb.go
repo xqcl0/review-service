@@ -60,3 +60,27 @@ func IsResultNotFound(err error) bool {
 func ErrorResultNotFound(format string, args ...interface{}) *errors.Error {
 	return errors.New(404, ErrorReason_RESULT_NOT_FOUND.String(), fmt.Sprintf(format, args...))
 }
+
+func IsReviewReplyAlreadyExist(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_ReviewReplyAlreadyExist.String() && e.Code == 410
+}
+
+func ErrorReviewReplyAlreadyExist(format string, args ...interface{}) *errors.Error {
+	return errors.New(410, ErrorReason_ReviewReplyAlreadyExist.String(), fmt.Sprintf(format, args...))
+}
+
+func IsStoreIDNotMatch(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_StoreIDNotMatch.String() && e.Code == 411
+}
+
+func ErrorStoreIDNotMatch(format string, args ...interface{}) *errors.Error {
+	return errors.New(411, ErrorReason_StoreIDNotMatch.String(), fmt.Sprintf(format, args...))
+}

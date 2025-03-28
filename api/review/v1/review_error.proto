@@ -16,4 +16,6 @@ enum ErrorReason {
     DB_FAILED = 1 [(errors.code) = 500];
     ORDER_REVIEWD = 100 [(errors.code) = 400];
     RESULT_NOT_FOUND = 101 [(errors.code) = 404];
+    ReviewReplyAlreadyExist = 102 [(errors.code) = 410];
+    StoreIDNotMatch = 103 [(errors.code) = 411];
 }

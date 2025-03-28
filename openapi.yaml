@@ -43,6 +43,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.review.v1.CreateReviewReply'
+    /v1/review/audit:
+        post:
+            tags:
+                - Review
+            description: O端审核评价
+            operationId: Review_AuditReview
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.review.v1.AuditReviewRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.review.v1.AuditReviewReply'
+    /v1/review/reply:
+        post:
+            tags:
+                - Review
+            description: B端回复评价
+            operationId: Review_ReplyReview
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.review.v1.ReplyReviewRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.review.v1.ReplyReviewReply'
     /v1/review/{reviewID}:
         get:
             tags:
@@ -66,6 +104,30 @@ paths:
                                 $ref: '#/components/schemas/api.review.v1.GetReviewReply'
 components:
     schemas:
+        api.review.v1.AuditReviewReply:
+            type: object
+            properties:
+                reviewID:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+            description: 审核评价的返回值
+        api.review.v1.AuditReviewRequest:
+            type: object
+            properties:
+                reviewID:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                opUser:
+                    type: string
+                opReason:
+                    type: string
+                opRemarks:
+                    type: string
+            description: 审核评价的请求
         api.review.v1.CreateReviewReply:
             type: object
             properties:
@@ -100,6 +162,26 @@ components:
             properties:
                 data:
                     $ref: '#/components/schemas/api.review.v1.ReviewInfo'
+        api.review.v1.ReplyReviewReply:
+            type: object
+            properties:
+                replyID:
+                    type: string
+            description: 回复评价的返回值
+        api.review.v1.ReplyReviewRequest:
+            type: object
+            properties:
+                reviewID:
+                    type: string
+                storeID:
+                    type: string
+                content:
+                    type: string
+                picInfo:
+                    type: string
+                videoInfo:
+                    type: string
+            description: 回复评价的请求
         api.review.v1.ReviewInfo:
             type: object
             properties:

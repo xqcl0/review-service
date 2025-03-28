@@ -67,3 +67,21 @@ func (s *ReviewService) GetReview(ctx context.Context, req *pb.GetReviewRequest)
 		Data: resp,
 	}, nil
 }
+
+func (s *ReviewService) ReplyReview(ctx context.Context, req *pb.ReplyReviewRequest) (*pb.ReplyReviewReply, error) {
+	fmt.Printf("[service] ReplyReview, req:%v\n", req)
+	replyInfo := &model.ReviewReplyInfo{
+		ReviewID:  req.ReviewID,
+		StoreID:   req.StoreID,
+		Content:   req.Content,
+		PicInfo:   req.PicInfo,
+		VideoInfo: req.VideoInfo,
+	}
+	data, err := s.uc.ReplyReview(ctx, replyInfo)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.ReplyReviewReply{
+		ReplyID: data.ReplyID,
+	}, err
+}
